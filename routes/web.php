@@ -11,8 +11,16 @@
 |
 */
 
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
+
 Route::get('/', function () {
-    return view('home');
+    return view('welcome');
+});
+
+Route::get('/adminportal', function () {
+    return view('adminportal');
 });
 
 Route::get('/schools', [

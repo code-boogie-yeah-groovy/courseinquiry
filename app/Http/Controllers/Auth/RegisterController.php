@@ -2,10 +2,21 @@
 
 namespace App\Http\Controllers\Auth;
 
+
+
+
+
+
+
+
+
+
 use App\User;
+use App\Mail\PasswordCreated;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Support\Facades\Mail;
 
 class RegisterController extends Controller
 {
@@ -50,7 +61,7 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
+            //'password' => 'required|string|min:6|confirmed',
         ]);
     }
 
@@ -60,12 +71,18 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \App\User
      */
-    protected function create(array $data)
+    protected function create(array $rawdata)
     {
-        return User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => bcrypt($data['password']),
+        $password = str_random(8);
+        $user = User::create([
+            'name' => $rawdata['name'],
+            'email' => $rawdata['email'],
+            'password' =>  bcrypt($password),
         ]);
+
+        Mail::to($user)->send(new PasswordCreated($user, $password));
+
+        return $user;
+
     }
 }
